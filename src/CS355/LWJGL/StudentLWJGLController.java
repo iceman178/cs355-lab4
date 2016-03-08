@@ -1,6 +1,5 @@
 package CS355.LWJGL;
 
-
 //You might notice a lot of imports here.
 //You are probably wondering why I didn't just import org.lwjgl.opengl.GL11.*
 //Well, I did it as a hint to you.
@@ -28,51 +27,191 @@ import static org.lwjgl.opengl.GL11.glViewport;
 import static org.lwjgl.opengl.GL11.glOrtho;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
 
+import java.util.Iterator;
+import java.util.Random;
+
+import org.lwjgl.util.vector.Vector3f;
+import static org.lwjgl.opengl.GL11.glPopMatrix;
+
 public class StudentLWJGLController implements CS355LWJGLController 
 {
-  
-  //This is a model of a house.
-  //It has a single method that returns an iterator full of Line3Ds.
-  //A "Line3D" is a wrapper class around two Point2Ds.
-  //It should all be fairly intuitive if you look at those classes.
-  //If not, I apologize.
-  private WireFrame model = new HouseModel();
+	private enum projectionType {
+		ORTHOGRAPHIC, PERSPECTIVE
+	}
+	
+	// This is a model of a house.
+	// It has a single method that returns an iterator full of Line3Ds.
+	// A "Line3D" is a wrapper class around two Point2Ds.
+	// It should all be fairly intuitive if you look at those classes.
+	// If not, I apologize.
+	private WireFrame model = new HouseModel();
+	
+	private projectionType projection;
+	private Vector3f position = new Vector3f();
+	private float yaw = 0.0f;
+	private static final float UNIT = 1.0f;
+	Random rand = new Random();
 
-  //This method is called to "resize" the viewport to match the screen.
-  //When you first start, have it be in perspective mode.
-  @Override
-  public void resizeGL() 
-  {
-
-  }
-
-    @Override
-    public void update() 
-    {
+	// This method is called to "resize" the viewport to match the screen.
+	// When you first start, have it be in perspective mode.
+	@Override
+	public void resizeGL() 
+	{
+		this.projection = projectionType.PERSPECTIVE;
+		
+		glViewport(0, 0, LWJGLSandbox.DISPLAY_WIDTH, LWJGLSandbox.DISPLAY_HEIGHT); //setup viewport
+		
+		//setup projection matrix
+		glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
         
-    }
+		moveHome();
+	}
 
-    //This is called every frame, and should be responsible for keyboard updates.
-    //An example keyboard event is captured below.
-    //The "Keyboard" static class should contain everything you need to finish
-    // this up.
-    @Override
-    public void updateKeyboard() 
-    {
-        if(Keyboard.isKeyDown(Keyboard.KEY_W)) 
-        {
-            System.out.println("You are pressing W!");
-        }
-    }
+	@Override
+	public void update() 
+	{
+		// DO NOTHING
+	}
 
-    //This method is the one that actually draws to the screen.
-    @Override
-    public void render() 
-    {
-        //This clears the screen.
-        glClear(GL_COLOR_BUFFER_BIT);
-        
-        //Do your drawing here.
-    }
-    
+	// This is called every frame, and should be responsible for keyboard
+	// updates.
+	// An example keyboard event is captured below.
+	// The "Keyboard" static class should contain everything you need to finish
+	// this up.
+	@Override
+	public void updateKeyboard() 
+	{
+		if (Keyboard.isKeyDown(Keyboard.KEY_A)) { // Move left
+			this.moveLeft();
+		}
+		else if (Keyboard.isKeyDown(Keyboard.KEY_D)) { // Move right
+			this.moveRight();
+		}
+		else if (Keyboard.isKeyDown(Keyboard.KEY_W)) { // Move forward
+			this.moveForward();
+		}
+		else if (Keyboard.isKeyDown(Keyboard.KEY_S)) { // Move backward
+			this.moveBackward();
+		}
+		else if (Keyboard.isKeyDown(Keyboard.KEY_Q)) { // Turn left
+			this.turnLeft();
+		}		
+		else if (Keyboard.isKeyDown(Keyboard.KEY_E)) { // Turn right
+			this.turnRight();
+		}		
+		else if (Keyboard.isKeyDown(Keyboard.KEY_R)) { // Move up
+			this.moveUp();
+		}		
+		else if (Keyboard.isKeyDown(Keyboard.KEY_F)) { // Move down
+			this.moveDown();
+		}		
+		else if (Keyboard.isKeyDown(Keyboard.KEY_H)) { // Return to the original "home" position and orientation
+			this.moveHome();
+		}		
+		else if (Keyboard.isKeyDown(Keyboard.KEY_O)) { // Switch to orthographic projection
+			this.projection = projectionType.ORTHOGRAPHIC;
+		}		
+		else if (Keyboard.isKeyDown(Keyboard.KEY_P)) { // Switch to perspective projection
+			this.projection = projectionType.PERSPECTIVE;
+		}		
+	}
+
+	// This method is the one that actually draws to the screen.
+	@Override
+	public void render() 
+	{
+		// This clears the screen.
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		// Do your drawing here.
+		
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		
+		switch(this.projection)
+		{
+			case PERSPECTIVE:
+				gluPerspective(48.0f, (float) LWJGLSandbox.DISPLAY_WIDTH / LWJGLSandbox.DISPLAY_HEIGHT, 1.0f, 300.0f);
+				break;
+			case ORTHOGRAPHIC:
+				glOrtho(-24.0f, 24.0f, -24.0f, 24.0f, 1.0f, 300.0f);
+				break;
+		}
+		
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		
+		glRotatef(yaw, 0.0f, 1.0f, 0.0f);
+		glTranslatef(position.x, position.y, position.z);
+		
+		this.drawNeighborhood();		
+	}
+
+	
+	private void drawHouse() {
+		
+		glBegin(GL_LINES);
+		
+		Iterator<Line3D> i = model.getLines();
+		
+		while (i.hasNext())
+		{
+			Line3D line = i.next();
+			glVertex3d(line.start.x, line.start.y, line.start.z);
+			glVertex3d(line.end.x, line.end.y, line.end.z);
+		}
+		
+		glEnd();
+	}
+	
+	
+	private void drawNeighborhood() {
+		
+		this.drawHouse();
+		
+	}
+
+	// Manipulation functions TODO
+	
+	
+	private void moveHome() {
+		position.x = 0;
+		position.y = -1.5f;
+		position.z = -20;
+		yaw = 0.0f;
+	}
+	
+	private void moveLeft() {w
+	}
+	
+	private void moveRight() {
+			
+	}
+		
+	private void moveForward() {
+		
+	}
+		
+	private void moveBackward() {
+		
+	}	
+		
+	private void turnLeft() {
+		yaw -= UNIT;
+	}	
+		
+	private void turnRight() {
+		yaw += UNIT;
+	}	
+		
+	private void moveUp() {
+		position.y -= UNIT;
+	}
+	
+	private void moveDown() {
+		position.y += UNIT;
+	}
+	
+	
 }
