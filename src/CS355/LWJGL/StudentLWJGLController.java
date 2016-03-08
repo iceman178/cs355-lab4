@@ -8,7 +8,7 @@ package CS355.LWJGL;
 //This is a list of all the commands I used when I implemented my project.
 //Therefore, if a command appears in this list, you probably need it.
 //If it doesn't appear in this list, you probably don't.
-//Of course, your milage may vary. Don't feel restricted by this list of imports.
+//Of course, your mileage may vary. Don't feel restricted by this list of imports.
 import org.lwjgl.input.Keyboard;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_LINES;
@@ -28,10 +28,6 @@ import static org.lwjgl.opengl.GL11.glViewport;
 import static org.lwjgl.opengl.GL11.glOrtho;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
 
-/**
- *
- * @author Brennan Smith
- */
 public class StudentLWJGLController implements CS355LWJGLController 
 {
   
