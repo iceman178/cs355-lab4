@@ -164,9 +164,29 @@ public class StudentLWJGLController implements CS355LWJGLController
 		
 		glEnd();
 	}
-	
+		
 	
 	private void drawNeighborhood() {
+		
+		for(float z=0.0f;z<10.0f;z+=1.0f) 
+		{
+			for(float x=-1.0f;x<=1.0f;x+=2.0f) 
+			{
+				float rotation = (x==1)? 270.0f : 90.0f;
+				float r = 1.0f - (( z + 1.0f ) * 0.1f);
+				float g = 0.5f - ( x * 0.25f );
+				float b = (( z + 1.0f ) * 0.1f);
+				
+				glPushMatrix();
+				glColor3f(r,g,b);
+//				glColor3f(rand.nextInt()%255,rand.nextInt()%255,rand.nextInt()%255);
+				glTranslatef(x*15,0,z*-15);
+				glRotatef(rotation, 0.0f, 1.0f, 0.0f);
+				this.drawHouse();
+				glPopMatrix();	
+			}
+		}
+		
 		
 		this.drawHouse();
 		
@@ -182,21 +202,26 @@ public class StudentLWJGLController implements CS355LWJGLController
 		yaw = 0.0f;
 	}
 	
-	private void moveLeft() {w
+	private void moveLeft() {
+		position.x -= UNIT * (float)Math.sin(Math.toRadians(yaw-90));
+	    position.z += UNIT * (float)Math.cos(Math.toRadians(yaw-90));
 	}
 	
 	private void moveRight() {
-			
+		position.x -= UNIT * (float)Math.sin(Math.toRadians(yaw+90));
+	    position.z += UNIT * (float)Math.cos(Math.toRadians(yaw+90));
 	}
 		
 	private void moveForward() {
-		
+		position.x -= UNIT * (float)Math.sin(Math.toRadians(yaw));
+	    position.z += UNIT * (float)Math.cos(Math.toRadians(yaw));
 	}
 		
 	private void moveBackward() {
-		
-	}	
-		
+		position.x += UNIT * (float)Math.sin(Math.toRadians(yaw));
+	    position.z -= UNIT * (float)Math.cos(Math.toRadians(yaw));
+	}		
+	
 	private void turnLeft() {
 		yaw -= UNIT;
 	}	
