@@ -28,9 +28,11 @@ import static org.lwjgl.opengl.GL11.glOrtho;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
 
 import java.util.Iterator;
-import java.util.Random;
 
 import org.lwjgl.util.vector.Vector3f;
+
+import javafx.scene.Camera;
+
 import static org.lwjgl.opengl.GL11.glPopMatrix;
 
 public class StudentLWJGLController implements CS355LWJGLController 
@@ -50,7 +52,6 @@ public class StudentLWJGLController implements CS355LWJGLController
 	private Vector3f position = new Vector3f();
 	private float yaw = 0.0f;
 	private static final float UNIT = 1.0f;
-	Random rand = new Random();
 
 	// This method is called to "resize" the viewport to match the screen.
 	// When you first start, have it be in perspective mode.
@@ -61,7 +62,6 @@ public class StudentLWJGLController implements CS355LWJGLController
 		
 		glViewport(0, 0, LWJGLSandbox.DISPLAY_WIDTH, LWJGLSandbox.DISPLAY_HEIGHT); //setup viewport
 		
-		//setup projection matrix
 		glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         
@@ -124,8 +124,6 @@ public class StudentLWJGLController implements CS355LWJGLController
 		// This clears the screen.
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		// Do your drawing here.
-		
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 		
@@ -145,55 +143,55 @@ public class StudentLWJGLController implements CS355LWJGLController
 		glRotatef(yaw, 0.0f, 1.0f, 0.0f);
 		glTranslatef(position.x, position.y, position.z);
 		
-		this.drawNeighborhood();		
+		this.drawNeighborhood();	
 	}
 
 	
-	private void drawHouse() {
-		
+	private void drawHouse() 
+	{	
 		glBegin(GL_LINES);
 		
-		Iterator<Line3D> i = model.getLines();
+		Iterator<Line3D> it = model.getLines();
 		
-		while (i.hasNext())
+		while (it.hasNext())
 		{
-			Line3D line = i.next();
+			Line3D line = it.next();
 			glVertex3d(line.start.x, line.start.y, line.start.z);
 			glVertex3d(line.end.x, line.end.y, line.end.z);
 		}
-		
 		glEnd();
 	}
-		
 	
-	private void drawNeighborhood() {
-		
-		for(float z=0.0f;z<10.0f;z+=1.0f) 
+	private void drawNeighborhood() 
+	{	
+		for(float z=0.0f; z < 10.0f; z += 1.0f) // Makes 10 houses in a row
 		{
-			for(float x=-1.0f;x<=1.0f;x+=2.0f) 
+			for(float x = -1.0f; x <= 1.0f; x += 2.0f) // Makes 2 houses that face each other 
 			{
-				float rotation = (x==1)? 270.0f : 90.0f;
+				float rotation = 0.0f;
+				if (x == 1)	{
+					rotation = 270.0f;
+				}
+				else {
+					rotation = 90.0f;
+				}
+				
 				float r = 1.0f - (( z + 1.0f ) * 0.1f);
-				float g = 0.5f - ( x * 0.25f );
-				float b = (( z + 1.0f ) * 0.1f);
+				float g = 0.5f - (x * 0.50f);
+				float b = (z - 1.0f) * 0.1f;
 				
 				glPushMatrix();
-				glColor3f(r,g,b);
-//				glColor3f(rand.nextInt()%255,rand.nextInt()%255,rand.nextInt()%255);
-				glTranslatef(x*15,0,z*-15);
+				glColor3f(r, g, b);
+				glTranslatef(x * 15, 0, z * -15);
 				glRotatef(rotation, 0.0f, 1.0f, 0.0f);
 				this.drawHouse();
 				glPopMatrix();	
 			}
 		}
-		
-		
-		this.drawHouse();
-		
+		this.drawHouse(); // Draws the normal house
 	}
 
-	// Manipulation functions TODO
-	
+	// House functions
 	
 	private void moveHome() {
 		position.x = 0;
@@ -203,13 +201,13 @@ public class StudentLWJGLController implements CS355LWJGLController
 	}
 	
 	private void moveLeft() {
-		position.x -= UNIT * (float)Math.sin(Math.toRadians(yaw-90));
-	    position.z += UNIT * (float)Math.cos(Math.toRadians(yaw-90));
+		position.x -= UNIT * (float)Math.sin(Math.toRadians(yaw - 90));
+	    position.z += UNIT * (float)Math.cos(Math.toRadians(yaw - 90));
 	}
 	
 	private void moveRight() {
-		position.x -= UNIT * (float)Math.sin(Math.toRadians(yaw+90));
-	    position.z += UNIT * (float)Math.cos(Math.toRadians(yaw+90));
+		position.x -= UNIT * (float)Math.sin(Math.toRadians(yaw + 90));
+	    position.z += UNIT * (float)Math.cos(Math.toRadians(yaw + 90));
 	}
 		
 	private void moveForward() {
